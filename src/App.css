@@ -453,6 +453,65 @@ button.loading::after {
   }
 }
 
+.authenticated-app {
+  grid-template-columns: 1fr;
+}
+
+.authenticated-dashboard {
+  min-height: calc(100vh - 4rem);
+  animation: panel-enter 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.user-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.user-summary div {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
+  background: rgba(2, 6, 23, 0.48);
+}
+
+.user-summary span {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.user-summary strong {
+  color: #f8fafc;
+  overflow-wrap: anywhere;
+}
+
+.danger-button {
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.2);
+  border: 1px solid rgba(248, 113, 113, 0.24);
+}
+
+.danger-button:hover {
+  color: #ffffff;
+  background: rgba(127, 29, 29, 0.32);
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -2,6 +2,8 @@ import { type FormEvent, useState } from "react";
 import "./App.css";
 import { type AuthUser, login, registerUser } from "./services/authService";
 
+const AUTH_STORAGE_KEY = "jenforce:auth";
+
 const tickets = [
   {
     id: "JF-2026-001",
@@ -29,6 +31,33 @@ const tickets = [
 type AuthStatus = "idle" | "loading" | "success" | "error";
 type AuthMode = "login" | "register";
 
+type AuthSession = {
+  token: string;
+  user: AuthUser;
+};
+
+function getStoredSession(): AuthSession | null {
+  const storedSession = localStorage.getItem(AUTH_STORAGE_KEY);
+
+  if (!storedSession) {
+    return null;
+  }
+
+  try {
+    const parsedSession = JSON.parse(storedSession) as AuthSession;
+
+    if (!parsedSession.token || !parsedSession.user?.email) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      return null;
+    }
+
+    return parsedSession;
+  } catch {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    return null;
+  }
+}
+
 function App() {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [name, setName] = useState("");
@@ -36,10 +65,13 @@ function App() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<AuthStatus>("idle");
   const [feedback, setFeedback] = useState("");
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [currentSession, setCurrentSession] = useState<AuthSession | null>(() =>
+    getStoredSession(),
+  );
 
   const isLoading = status === "loading";
   const isLoginMode = authMode === "login";
+  const currentUser = currentSession?.user;
 
   function handleAuthModeChange(mode: AuthMode) {
     if (isLoading) {
@@ -50,6 +82,15 @@ function App() {
     setStatus("idle");
     setFeedback("");
     setPassword("");
+  }
+
+  function handleLogout() {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    setCurrentSession(null);
+    setStatus("idle");
+    setFeedback("");
+    setPassword("");
+    setAuthMode("login");
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -80,15 +121,14 @@ function App() {
           password,
         });
 
-        localStorage.setItem(
-          "jenforce:auth",
-          JSON.stringify({
-            token: response.token,
-            user: response.user,
-          }),
-        );
+        const session = {
+          token: response.token,
+          user: response.user,
+        };
 
-        setCurrentUser(response.user);
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+
+        setCurrentSession(session);
         setStatus("success");
         setFeedback(`Acesso liberado. Bem-vindo, ${response.user.name}.`);
         setPassword("");
@@ -101,7 +141,7 @@ function App() {
         password,
       });
 
-      setCurrentUser(null);
+      setCurrentSession(null);
       setAuthMode("login");
       setName("");
       setPassword("");
@@ -115,6 +155,103 @@ function App() {
           : "Nao foi possivel concluir a acao. Tente novamente.",
       );
     }
+  }
+
+  if (currentUser) {
+    return (
+      <main className="app authenticated-app">
+        <section className="dashboard-preview authenticated-dashboard">
+          <aside className="sidebar">
+            <div className="sidebar-logo">JF</div>
+
+            <nav>
+              <a className="active" href="/">
+                Dashboard
+              </a>
+              <a href="/">Chamados</a>
+              <a href="/">Usuarios</a>
+              <a href="/">Relatorios</a>
+              <a href="/">Configuracoes</a>
+            </nav>
+          </aside>
+
+          <div className="dashboard-content">
+            <header className="dashboard-header">
+              <div>
+                <p className="eyebrow">Sessao autenticada</p>
+                <h2>Painel de atendimento</h2>
+              </div>
+
+              <button
+                className="secondary-button danger-button"
+                onClick={handleLogout}
+                type="button"
+              >
+                Sair
+              </button>
+            </header>
+
+            <section className="user-summary">
+              <div>
+                <span>Usuario autenticado</span>
+                <strong>{currentUser.name}</strong>
+              </div>
+
+              <div>
+                <span>Email</span>
+                <strong>{currentUser.email}</strong>
+              </div>
+
+              <div>
+                <span>Perfil</span>
+                <strong>{currentUser.role}</strong>
+              </div>
+            </section>
+
+            <div className="metrics">
+              <div className="metric-card">
+                <span>Abertos</span>
+                <strong>24</strong>
+              </div>
+
+              <div className="metric-card">
+                <span>Urgentes</span>
+                <strong>03</strong>
+              </div>
+
+              <div className="metric-card">
+                <span>Resolvidos hoje</span>
+                <strong>12</strong>
+              </div>
+            </div>
+
+            <div className="tickets-card">
+              <div className="tickets-header">
+                <h3>Chamados recentes</h3>
+                <span>Atualizado agora</span>
+              </div>
+
+              <div className="ticket-list">
+                {tickets.map((ticket) => (
+                  <article className="ticket-item" key={ticket.id}>
+                    <div>
+                      <span className="ticket-id">{ticket.id}</span>
+                      <h4>{ticket.title}</h4>
+                      <p>{ticket.category}</p>
+                    </div>
+
+                    <div className="ticket-meta">
+                      <span className="priority">{ticket.priority}</span>
+                      <span>{ticket.status}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (
@@ -162,6 +299,7 @@ function App() {
 
           <fieldset className="auth-mode-switch">
             <legend className="sr-only">Alternar formulario</legend>
+
             <button
               className={isLoginMode ? "mode-button active" : "mode-button"}
               disabled={isLoading}
@@ -239,14 +377,6 @@ function App() {
           >
             {feedback}
           </div>
-
-          {currentUser && (
-            <div className="session-card">
-              <span>Sessao ativa</span>
-              <strong>{currentUser.name}</strong>
-              <small>{currentUser.role}</small>
-            </div>
-          )}
 
           <p className="helper-text">
             O cadastro publico cria apenas usuarios CUSTOMER. Perfis internos devem ser gerenciados
