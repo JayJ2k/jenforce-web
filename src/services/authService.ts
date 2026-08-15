@@ -1,3 +1,4 @@
+﻿import type { AuthUser } from "../types/auth";
 import { apiRequest } from "./api";
 
 type LoginPayload = {
@@ -9,13 +10,6 @@ type RegisterPayload = {
   name: string;
   email: string;
   password: string;
-};
-
-export type AuthUser = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
 };
 
 export type LoginResponse = {
