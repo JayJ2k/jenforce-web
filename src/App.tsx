@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react";
 import "./App.css";
-import { type AuthUser, login } from "./services/authService";
+import { type AuthUser, login, registerUser } from "./services/authService";
 
 const tickets = [
   {
@@ -27,8 +27,11 @@ const tickets = [
 ];
 
 type AuthStatus = "idle" | "loading" | "success" | "error";
+type AuthMode = "login" | "register";
 
 function App() {
+  const [authMode, setAuthMode] = useState<AuthMode>("login");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<AuthStatus>("idle");
@@ -36,43 +39,80 @@ function App() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
 
   const isLoading = status === "loading";
+  const isLoginMode = authMode === "login";
 
-  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+  function handleAuthModeChange(mode: AuthMode) {
+    if (isLoading) {
+      return;
+    }
+
+    setAuthMode(mode);
+    setStatus("idle");
+    setFeedback("");
+    setPassword("");
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    const normalizedName = name.trim();
     const normalizedEmail = email.trim();
 
     if (!normalizedEmail || !password) {
       setStatus("error");
-      setFeedback("Informe email e senha para acessar.");
+      setFeedback("Informe email e senha para continuar.");
+      return;
+    }
+
+    if (!isLoginMode && !normalizedName) {
+      setStatus("error");
+      setFeedback("Informe seu nome para criar a conta.");
       return;
     }
 
     setStatus("loading");
-    setFeedback("Validando credenciais...");
+    setFeedback(isLoginMode ? "Validando credenciais..." : "Criando cadastro...");
 
     try {
-      const response = await login({
+      if (isLoginMode) {
+        const response = await login({
+          email: normalizedEmail,
+          password,
+        });
+
+        localStorage.setItem(
+          "jenforce:auth",
+          JSON.stringify({
+            token: response.token,
+            user: response.user,
+          }),
+        );
+
+        setCurrentUser(response.user);
+        setStatus("success");
+        setFeedback(`Acesso liberado. Bem-vindo, ${response.user.name}.`);
+        setPassword("");
+        return;
+      }
+
+      const response = await registerUser({
+        name: normalizedName,
         email: normalizedEmail,
         password,
       });
 
-      localStorage.setItem(
-        "jenforce:auth",
-        JSON.stringify({
-          token: response.token,
-          user: response.user,
-        }),
-      );
-
-      setCurrentUser(response.user);
-      setStatus("success");
-      setFeedback(`Acesso liberado. Bem-vindo, ${response.user.name}.`);
+      setCurrentUser(null);
+      setAuthMode("login");
+      setName("");
       setPassword("");
+      setStatus("success");
+      setFeedback(`Cadastro criado para ${response.user.name}. Agora faca login para acessar.`);
     } catch (error) {
       setStatus("error");
       setFeedback(
-        error instanceof Error ? error.message : "Não foi possível entrar. Tente novamente.",
+        error instanceof Error
+          ? error.message
+          : "Nao foi possivel concluir a acao. Tente novamente.",
       );
     }
   }
@@ -116,9 +156,45 @@ function App() {
           </div>
         </div>
 
-        <form className="login-card" onSubmit={handleLogin}>
+        <form className="login-card" onSubmit={handleSubmit}>
           <p className="eyebrow">Acesso seguro</p>
-          <h2>Entrar no painel</h2>
+          <h2>{isLoginMode ? "Entrar no painel" : "Criar conta"}</h2>
+
+          <fieldset className="auth-mode-switch">
+            <legend className="sr-only">Alternar formulario</legend>
+            <button
+              className={isLoginMode ? "mode-button active" : "mode-button"}
+              disabled={isLoading}
+              onClick={() => handleAuthModeChange("login")}
+              type="button"
+            >
+              Login
+            </button>
+
+            <button
+              className={!isLoginMode ? "mode-button active" : "mode-button"}
+              disabled={isLoading}
+              onClick={() => handleAuthModeChange("register")}
+              type="button"
+            >
+              Cadastro
+            </button>
+          </fieldset>
+
+          {!isLoginMode && (
+            <label htmlFor="name">
+              Nome
+              <input
+                autoComplete="name"
+                disabled={isLoading}
+                id="name"
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Seu nome"
+                type="text"
+                value={name}
+              />
+            </label>
+          )}
 
           <label htmlFor="email">
             Email
@@ -136,7 +212,7 @@ function App() {
           <label htmlFor="password">
             Senha
             <input
-              autoComplete="current-password"
+              autoComplete={isLoginMode ? "current-password" : "new-password"}
               disabled={isLoading}
               id="password"
               onChange={(event) => setPassword(event.target.value)}
@@ -147,7 +223,13 @@ function App() {
           </label>
 
           <button className={isLoading ? "loading" : ""} disabled={isLoading} type="submit">
-            {isLoading ? "Entrando..." : "Acessar Jenforce"}
+            {isLoading
+              ? isLoginMode
+                ? "Entrando..."
+                : "Criando conta..."
+              : isLoginMode
+                ? "Acessar Jenforce"
+                : "Criar conta CUSTOMER"}
           </button>
 
           <div
@@ -167,8 +249,8 @@ function App() {
           )}
 
           <p className="helper-text">
-            A integracao usa a API do Jenforce e mantem feedback visual de carregamento, erro e
-            sucesso.
+            O cadastro publico cria apenas usuarios CUSTOMER. Perfis internos devem ser gerenciados
+            por fluxo controlado.
           </p>
         </form>
       </section>
