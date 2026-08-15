@@ -160,7 +160,8 @@ function App() {
           <p className="eyebrow">Acesso seguro</p>
           <h2>{isLoginMode ? "Entrar no painel" : "Criar conta"}</h2>
 
-          <div className="auth-mode-switch" aria-label="Alternar formulario">
+          <fieldset className="auth-mode-switch">
+            <legend className="sr-only">Alternar formulario</legend>
             <button
               className={isLoginMode ? "mode-button active" : "mode-button"}
               disabled={isLoading}
@@ -178,7 +179,7 @@ function App() {
             >
               Cadastro
             </button>
-          </div>
+          </fieldset>
 
           {!isLoginMode && (
             <label htmlFor="name">
