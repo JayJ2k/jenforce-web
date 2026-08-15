@@ -1,4 +1,6 @@
+import { type FormEvent, useState } from "react";
 import "./App.css";
+import { type AuthUser, login } from "./services/authService";
 
 const tickets = [
   {
@@ -24,7 +26,57 @@ const tickets = [
   },
 ];
 
+type AuthStatus = "idle" | "loading" | "success" | "error";
+
 function App() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [status, setStatus] = useState<AuthStatus>("idle");
+  const [feedback, setFeedback] = useState("");
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+
+  const isLoading = status === "loading";
+
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail || !password) {
+      setStatus("error");
+      setFeedback("Informe email e senha para acessar.");
+      return;
+    }
+
+    setStatus("loading");
+    setFeedback("Validando credenciais...");
+
+    try {
+      const response = await login({
+        email: normalizedEmail,
+        password,
+      });
+
+      localStorage.setItem(
+        "jenforce:auth",
+        JSON.stringify({
+          token: response.token,
+          user: response.user,
+        }),
+      );
+
+      setCurrentUser(response.user);
+      setStatus("success");
+      setFeedback(`Acesso liberado. Bem-vindo, ${response.user.name}.`);
+      setPassword("");
+    } catch (error) {
+      setStatus("error");
+      setFeedback(
+        error instanceof Error ? error.message : "Não foi possível entrar. Tente novamente.",
+      );
+    }
+  }
+
   return (
     <main className="app">
       <section className="auth-panel">
@@ -64,24 +116,59 @@ function App() {
           </div>
         </div>
 
-        <form className="login-card">
+        <form className="login-card" onSubmit={handleLogin}>
           <p className="eyebrow">Acesso seguro</p>
           <h2>Entrar no painel</h2>
 
-          <label>
+          <label htmlFor="email">
             Email
-            <input type="email" placeholder="usuario@empresa.com" />
+            <input
+              autoComplete="email"
+              disabled={isLoading}
+              id="email"
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="usuario@empresa.com"
+              type="email"
+              value={email}
+            />
           </label>
 
-          <label>
+          <label htmlFor="password">
             Senha
-            <input type="password" placeholder="********" />
+            <input
+              autoComplete="current-password"
+              disabled={isLoading}
+              id="password"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="********"
+              type="password"
+              value={password}
+            />
           </label>
 
-          <button type="button">Acessar Jenforce</button>
+          <button className={isLoading ? "loading" : ""} disabled={isLoading} type="submit">
+            {isLoading ? "Entrando..." : "Acessar Jenforce"}
+          </button>
+
+          <div
+            aria-live="polite"
+            className={`feedback-message ${status !== "idle" ? "is-visible" : ""} ${status}`}
+            role={status === "error" ? "alert" : "status"}
+          >
+            {feedback}
+          </div>
+
+          {currentUser && (
+            <div className="session-card">
+              <span>Sessao ativa</span>
+              <strong>{currentUser.name}</strong>
+              <small>{currentUser.role}</small>
+            </div>
+          )}
 
           <p className="helper-text">
-            Interface visual inicial. A integracao com a API sera feita em uma proxima etapa.
+            A integracao usa a API do Jenforce e mantem feedback visual de carregamento, erro e
+            sucesso.
           </p>
         </form>
       </section>
@@ -108,7 +195,7 @@ function App() {
               <h2>Painel de atendimento</h2>
             </div>
 
-            <button type="button" className="secondary-button">
+            <button className="secondary-button" type="button">
               Novo chamado
             </button>
           </header>
