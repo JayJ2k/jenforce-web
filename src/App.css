@@ -13,8 +13,7 @@ body {
   margin: 0;
   background:
     radial-gradient(circle at top left, rgba(38, 166, 154, 0.16), transparent 32rem),
-    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.14), transparent 28rem),
-    #060a12;
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.14), transparent 28rem), #060a12;
 }
 
 button,
