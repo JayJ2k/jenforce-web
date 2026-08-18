@@ -1,75 +1,204 @@
-# React + TypeScript + Vite
+# Jenforce Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend do **Jenforce**, uma plataforma de chamados para suporte técnico e atendimento interno.
 
-Currently, two official plugins are available:
+O projeto foi desenvolvido com React, TypeScript e Vite, com foco em simular uma experiência real de service desk: autenticação, painel inicial, visualização de chamados e uma landing de entrada com identidade visual própria.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Sobre o projeto
 
-## React Compiler
+O **Jenforce Web** é a interface da central de atendimento Jenforce.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+A aplicação permite que usuários acessem a plataforma, criem conta, façam login e visualizem uma experiência inicial de produto voltada para organização de suporte, acompanhamento de demandas e atendimento humanizado.
 
-## Expanding the ESLint configuration
+## Identidade visual
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+O Jenforce Web possui uma identidade visual clara, dourada, terrosa e humanizada.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+A interface foi pensada para transmitir organização, cuidado, pertencimento e profissionalismo, evitando uma estética genérica de IA ou dashboard técnico escuro.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+A direção visual atual inclui:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Fundo claro em tons de marfim e creme
+- Dourado como destaque principal
+- Tons terrosos em textos, bordas e elementos de apoio
+- Cards com profundidade suave
+- Microinterações com Motion.dev
+- Feedback visual em botões e formulários
+- Respeito a `prefers-reduced-motion`
 
+A landing principal apresenta:
+
+- Navegação superior interativa
+- Hero com linguagem editorial
+- Card de autenticação
+- Elementos visuais de produto
+- Cards de valores
+- Footer compacto
+
+## Tecnologias utilizadas
+
+- React
+- TypeScript
+- Vite
+- Motion.dev
+- Lucide React
+- Biome
+- CSS customizado
+
+## Funcionalidades
+
+- Tela de entrada com landing visual
+- Login integrado com a API
+- Cadastro público de usuários
+- Persistência de sessão no `localStorage`
+- Painel autenticado
+- Logout
+- Preview visual do produto
+- Microinterações e feedback visual
+- Layout responsivo
+
+## Variáveis de ambiente
+
+Crie um arquivo `.env` local com base no `.env.example`.
+
+```env
+VITE_API_URL=http://localhost:3334
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+O arquivo `.env` não deve ser versionado.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Como rodar o projeto
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Instale as dependências:
 
+```bash
+npm install
+```
+
+Inicie o servidor de desenvolvimento:
+
+```bash
+npm run dev
+```
+
+A aplicação ficará disponível em:
+
+```txt
+http://localhost:5173
+```
+
+## API esperada
+
+O frontend espera que a Jenforce API esteja rodando em:
+
+```txt
+http://localhost:3334
+```
+
+Rotas usadas pelo frontend:
+
+```txt
+POST /auth/login
+POST /auth/register
+GET  /auth/me
+```
+
+## Scripts disponíveis
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run format
+npm run lint
+npm run check
+```
+
+## Qualidade de código
+
+O projeto utiliza **Biome** para formatação, lint e organização de imports.
+
+Antes de abrir um Pull Request, execute:
+
+```bash
+npm run build
+npm run check
+```
+
+Para aplicar correções automáticas:
+
+```bash
+npx biome check --write .
+```
+
+## Padrão de contribuição
+
+Este projeto segue um fluxo obrigatório baseado em Issues, branches e Pull Requests.
+
+Antes de qualquer alteração chegar à branch `main`, é necessário:
+
+- Criar uma Issue no GitHub
+- Criar uma branch específica para a tarefa
+- Fazer a alteração localmente
+- Executar validações
+- Abrir Pull Request para `main`
+- Mencionar a Issue relacionada usando `Closes #número`
+- Fazer merge somente após validação
+- Atualizar a `main` local após o merge
+
+## Padrão de branches
+
+```txt
+feature/issue-X-descricao
+fix/issue-X-descricao
+docs/issue-X-descricao
+style/issue-X-descricao
+refactor/issue-X-descricao
+test/issue-X-descricao
+ci/issue-X-descricao
+```
+
+## Segurança
+
+Cuidados obrigatórios:
+
+- Não versionar `.env`
+- Não expor token no console
+- Não expor senha na interface
+- Não salvar dados sensíveis além da sessão necessária
+- Cadastro público deve seguir o fluxo da API e criar apenas usuários `CUSTOMER`
+- Manter `.env.example` sem dados reais
+
+## Estrutura principal
+
+```txt
+jenforce-web/
+├── public/
+│   └── jenforce-logo.svg
+├── src/
+│   ├── components/
+│   │   ├── AuthPanel.tsx
+│   │   ├── AuthScreen.tsx
+│   │   ├── AuthenticatedDashboard.tsx
+│   │   ├── EntryFooter.tsx
+│   │   ├── InteractiveHeader.tsx
+│   │   ├── NexusHeroVisual.tsx
+│   │   └── SideInsightPanel.tsx
+│   ├── data/
+│   │   └── mockTickets.ts
+│   ├── services/
+│   │   ├── api.ts
+│   │   └── authService.ts
+│   ├── types/
+│   │   └── auth.ts
+│   ├── utils/
+│   │   └── authStorage.ts
+│   ├── App.css
+│   ├── App.tsx
+│   ├── index.css
+│   └── main.tsx
+├── .env.example
+├── AGENTS.md
+├── package.json
+└── tsconfig.json
 ```
