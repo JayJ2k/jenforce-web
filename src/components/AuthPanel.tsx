@@ -1,4 +1,6 @@
-﻿import { type FormEvent, useState } from "react";
+﻿import { Eye, EyeOff, LoaderCircle, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { type FormEvent, useMemo, useState } from "react";
 import { login, registerUser } from "../services/authService";
 import type { AuthMode, AuthSession, AuthStatus } from "../types/auth";
 
@@ -7,15 +9,39 @@ type AuthPanelProps = {
 };
 
 export function AuthPanel({ onAuthSuccess }: AuthPanelProps) {
+  const shouldReduceMotion = useReducedMotion();
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<AuthStatus>("idle");
   const [feedback, setFeedback] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const isLoading = status === "loading";
   const isLoginMode = authMode === "login";
+
+  const passwordScore = useMemo(() => {
+    let score = 0;
+
+    if (password.length >= 6) {
+      score += 1;
+    }
+
+    if (/[A-Z]/.test(password)) {
+      score += 1;
+    }
+
+    if (/\d/.test(password)) {
+      score += 1;
+    }
+
+    if (/[^A-Za-z0-9]/.test(password)) {
+      score += 1;
+    }
+
+    return score;
+  }, [password]);
 
   function handleAuthModeChange(mode: AuthMode) {
     if (isLoading) {
@@ -26,6 +52,7 @@ export function AuthPanel({ onAuthSuccess }: AuthPanelProps) {
     setStatus("idle");
     setFeedback("");
     setPassword("");
+    setShowPassword(false);
   }
 
   function getSubmitButtonText() {
@@ -92,6 +119,7 @@ export function AuthPanel({ onAuthSuccess }: AuthPanelProps) {
       setAuthMode("login");
       setName("");
       setPassword("");
+      setShowPassword(false);
       setStatus("success");
       setFeedback(`Cadastro criado para ${response.user.name}. Agora faca login para acessar.`);
     } catch (error) {
@@ -105,72 +133,79 @@ export function AuthPanel({ onAuthSuccess }: AuthPanelProps) {
   }
 
   return (
-    <section className="auth-panel">
-      <div className="brand">
-        <div className="brand-icon">JF</div>
-
+    <motion.form
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      className="nexus-login-card interactive-login-card"
+      id="login"
+      initial={{
+        opacity: 0,
+        scale: shouldReduceMotion ? 1 : 0.98,
+        y: shouldReduceMotion ? 0 : 16,
+      }}
+      onSubmit={handleSubmit}
+      transition={{
+        duration: shouldReduceMotion ? 0 : 0.42,
+        ease: "easeOut",
+      }}
+    >
+      <div className="login-card-topline">
         <div>
-          <p className="eyebrow">Central de operacoes</p>
-          <h1>Jenforce</h1>
-          <p className="brand-description">
-            Sistema de chamados para suporte tecnico e atendimento interno.
-          </p>
+          <p>Acesso seguro</p>
+          <h2>{isLoginMode ? "Entrar no painel" : "Criar conta"}</h2>
         </div>
+
+        <motion.div
+          animate={
+            shouldReduceMotion
+              ? undefined
+              : {
+                  rotate: status === "success" ? [0, -8, 8, 0] : 0,
+                  scale: status === "success" ? [1, 1.08, 1] : 1,
+                }
+          }
+          className="login-security-icon"
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <ShieldCheck size={20} strokeWidth={2.4} />
+        </motion.div>
       </div>
 
-      <div className="hero-card">
-        <div className="hero-card-header">
-          <span>Status da operacao</span>
-          <strong>Online</strong>
-        </div>
+      <fieldset className="nexus-mode-switch interactive-mode-switch">
+        <legend className="sr-only">Alternar formulario</legend>
 
-        <div className="hero-grid">
-          <div>
-            <strong>24</strong>
-            <span>chamados ativos</span>
-          </div>
+        <motion.span
+          animate={{ x: isLoginMode ? "0%" : "100%" }}
+          className="nexus-mode-indicator"
+          transition={{
+            duration: shouldReduceMotion ? 0 : 0.26,
+            ease: "easeOut",
+          }}
+        />
 
-          <div>
-            <strong>08</strong>
-            <span>em analise</span>
-          </div>
+        <button
+          className={isLoginMode ? "active" : ""}
+          disabled={isLoading}
+          onClick={() => handleAuthModeChange("login")}
+          type="button"
+        >
+          Login
+        </button>
 
-          <div>
-            <strong>96%</strong>
-            <span>SLA previsto</span>
-          </div>
-        </div>
-      </div>
+        <button
+          className={!isLoginMode ? "active" : ""}
+          disabled={isLoading}
+          onClick={() => handleAuthModeChange("register")}
+          type="button"
+        >
+          Cadastro
+        </button>
+      </fieldset>
 
-      <form className="login-card" onSubmit={handleSubmit}>
-        <p className="eyebrow">Acesso seguro</p>
-        <h2>{isLoginMode ? "Entrar no painel" : "Criar conta"}</h2>
-
-        <fieldset className="auth-mode-switch">
-          <legend className="sr-only">Alternar formulario</legend>
-
-          <button
-            className={isLoginMode ? "mode-button active" : "mode-button"}
-            disabled={isLoading}
-            onClick={() => handleAuthModeChange("login")}
-            type="button"
-          >
-            Login
-          </button>
-
-          <button
-            className={!isLoginMode ? "mode-button active" : "mode-button"}
-            disabled={isLoading}
-            onClick={() => handleAuthModeChange("register")}
-            type="button"
-          >
-            Cadastro
-          </button>
-        </fieldset>
-
-        {!isLoginMode && (
-          <label htmlFor="name">
-            Nome
+      {!isLoginMode && (
+        <label className="interactive-field" htmlFor="name">
+          Nome
+          <div className="field-control">
+            <UserRound size={18} strokeWidth={2.3} />
             <input
               autoComplete="name"
               disabled={isLoading}
@@ -180,11 +215,14 @@ export function AuthPanel({ onAuthSuccess }: AuthPanelProps) {
               type="text"
               value={name}
             />
-          </label>
-        )}
+          </div>
+        </label>
+      )}
 
-        <label htmlFor="email">
-          Email
+      <label className="interactive-field" htmlFor="email">
+        Email
+        <div className="field-control">
+          <Mail size={18} strokeWidth={2.3} />
           <input
             autoComplete="email"
             disabled={isLoading}
@@ -194,38 +232,75 @@ export function AuthPanel({ onAuthSuccess }: AuthPanelProps) {
             type="email"
             value={email}
           />
-        </label>
+        </div>
+      </label>
 
-        <label htmlFor="password">
-          Senha
+      <label className="interactive-field" htmlFor="password">
+        Senha
+        <div className="field-control">
+          <LockKeyhole size={18} strokeWidth={2.3} />
           <input
             autoComplete={isLoginMode ? "current-password" : "new-password"}
             disabled={isLoading}
             id="password"
             onChange={(event) => setPassword(event.target.value)}
             placeholder="********"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
           />
-        </label>
 
-        <button className={isLoading ? "loading" : ""} disabled={isLoading} type="submit">
-          {getSubmitButtonText()}
-        </button>
-
-        <div
-          aria-live="polite"
-          className={`feedback-message ${status !== "idle" ? "is-visible" : ""} ${status}`}
-          role={status === "error" ? "alert" : "status"}
-        >
-          {feedback}
+          <button
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            className="password-toggle"
+            disabled={isLoading}
+            onClick={() => setShowPassword((current) => !current)}
+            type="button"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
         </div>
+      </label>
 
-        <p className="helper-text">
-          O cadastro publico cria apenas usuarios CUSTOMER. Perfis internos devem ser gerenciados
-          por fluxo controlado.
-        </p>
-      </form>
-    </section>
+      {!isLoginMode && password.length > 0 && (
+        <div className="password-strength" data-score={passwordScore}>
+          <div>
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+          <small>
+            {passwordScore <= 1 && "Senha simples"}
+            {passwordScore === 2 && "Senha razoavel"}
+            {passwordScore === 3 && "Senha boa"}
+            {passwordScore >= 4 && "Senha forte"}
+          </small>
+        </div>
+      )}
+
+      <motion.button
+        className={isLoading ? "loading" : ""}
+        disabled={isLoading}
+        type="submit"
+        whileHover={shouldReduceMotion || isLoading ? undefined : { y: -2, scale: 1.01 }}
+        whileTap={shouldReduceMotion || isLoading ? undefined : { scale: 0.98 }}
+      >
+        {isLoading && <LoaderCircle className="button-spinner" size={18} strokeWidth={2.5} />}
+        {getSubmitButtonText()}
+      </motion.button>
+
+      <div
+        aria-live="polite"
+        className={`feedback-message ${status !== "idle" ? "is-visible" : ""} ${status}`}
+        role={status === "error" ? "alert" : "status"}
+      >
+        {feedback}
+      </div>
+
+      <small>
+        Cadastro público cria apenas usuários CUSTOMER. Perfis internos devem seguir fluxo
+        controlado.
+      </small>
+    </motion.form>
   );
 }

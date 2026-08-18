@@ -1,6 +1,5 @@
-﻿import "./App.css";
-
-import { useState } from "react";
+﻿import { useState } from "react";
+import "./App.css";
 import { AuthenticatedDashboard } from "./components/AuthenticatedDashboard";
 import { AuthScreen } from "./components/AuthScreen";
 import type { AuthSession } from "./types/auth";
@@ -30,7 +29,7 @@ function App() {
   }
 
   return (
-    <main className="app">
+    <main className="nexus-entry-app">
       <AuthScreen onAuthSuccess={handleAuthSuccess} />
     </main>
   );
