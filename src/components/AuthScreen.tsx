@@ -23,16 +23,16 @@ type EntryValue = {
 const values: EntryValue[] = [
   {
     title: "Atendimento com pertencimento",
-    description: "Apoie pessoas com uma fila mais clara, acolhedora e rastreavel.",
+    description: "Apoie pessoas com uma fila mais clara, acolhedora e rastreável.",
     icon: HeartHandshake,
   },
   {
-    title: "Organizacao para equipes reais",
-    description: "Priorize chamados, acompanhe demandas e reduza ruídos na operacao.",
+    title: "Organização para equipes reais",
+    description: "Priorize chamados, acompanhe demandas e reduza ruídos na operação.",
     icon: LayoutDashboard,
   },
   {
-    title: "Tecnologia humana e responsavel",
+    title: "Tecnologia humana e responsável",
     description: "Use dados e processos sem perder o cuidado com quem precisa de suporte.",
     icon: ShieldCheck,
   },

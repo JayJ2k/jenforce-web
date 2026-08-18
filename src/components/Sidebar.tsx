@@ -12,7 +12,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav aria-label="Navegacao principal">
+      <nav aria-label="Navegação principal">
         {navigationItems.map((item) => (
           <a className={item === "Dashboard" ? "active" : ""} href="/" key={item}>
             <span>{item}</span>

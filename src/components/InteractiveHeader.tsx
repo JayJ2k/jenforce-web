@@ -194,7 +194,7 @@ export function InteractiveHeader() {
           </div>
         </a>
 
-        <nav aria-label="Navegacao principal" className="nexus-links">
+        <nav aria-label="Navegação principal" className="nexus-links">
           {navigationLinks.map((link) => {
             const Icon = link.icon;
             const isActive = activeHref === link.href;
