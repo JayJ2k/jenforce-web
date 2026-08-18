@@ -6223,3 +6223,42 @@ button {
     max-width: 34rem;
   }
 }
+
+/* Real tickets integration states */
+
+.ticket-state-card,
+.ticket-empty-state {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px solid rgba(188, 155, 96, 0.22);
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(255, 253, 248, 0.82), rgba(250, 247, 239, 0.52)),
+    rgba(255, 253, 248, 0.58);
+  box-shadow:
+    0 14px 34px rgba(74, 44, 32, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.ticket-state-card strong,
+.ticket-empty-state strong {
+  color: var(--nexus-coffee);
+}
+
+.ticket-state-card p,
+.ticket-empty-state p {
+  margin: 0;
+  color: var(--nexus-muted);
+}
+
+.ticket-state-card.is-error {
+  border-color: rgba(122, 47, 47, 0.28);
+  background:
+    linear-gradient(145deg, rgba(255, 253, 248, 0.82), rgba(122, 47, 47, 0.08)),
+    rgba(255, 253, 248, 0.58);
+}
+
+.ticket-state-card.is-error strong {
+  color: var(--nexus-danger);
+}
