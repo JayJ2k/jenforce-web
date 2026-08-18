@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
+﻿const API_URL = import.meta.env.VITE_API_URL;
 
 type ApiErrorResponse = {
   message?: string;
@@ -9,7 +9,7 @@ export async function apiRequest<TResponse>(
   options: RequestInit = {},
 ): Promise<TResponse> {
   if (!API_URL) {
-    throw new Error("URL da API não configurada.");
+    throw new Error("URL da API nÃ£o configurada.");
   }
 
   const headers = new Headers(options.headers);
@@ -28,7 +28,7 @@ export async function apiRequest<TResponse>(
   if (!response.ok) {
     const errorData = data as ApiErrorResponse | null;
 
-    throw new Error(errorData?.message || "Não foi possível processar a solicitação.");
+    throw new Error(errorData?.message || "NÃ£o foi possÃ­vel processar a solicitaÃ§Ã£o.");
   }
 
   return data as TResponse;
