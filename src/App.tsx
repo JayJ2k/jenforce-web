@@ -23,7 +23,11 @@ function App() {
   if (currentSession) {
     return (
       <main className="app authenticated-app">
-        <AuthenticatedDashboard user={currentSession.user} onLogout={handleLogout} />
+        <AuthenticatedDashboard
+          token={currentSession.token}
+          user={currentSession.user}
+          onLogout={handleLogout}
+        />
       </main>
     );
   }

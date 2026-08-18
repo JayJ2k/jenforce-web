@@ -1,12 +1,52 @@
 ﻿import { motion, useReducedMotion } from "motion/react";
-import type { TicketPreview } from "../data/mockTickets";
+import type { TicketListItem } from "../types/ticket";
 
 type TicketListProps = {
-  tickets: TicketPreview[];
+  tickets: TicketListItem[];
+  emptyMessage?: string;
 };
 
-export function TicketList({ tickets }: TicketListProps) {
+const statusLabels: Record<string, string> = {
+  OPEN: "Aberto",
+  IN_PROGRESS: "Em atendimento",
+  RESOLVED: "Resolvido",
+  CLOSED: "Encerrado",
+};
+
+const priorityLabels: Record<string, string> = {
+  LOW: "Baixa",
+  MEDIUM: "Média",
+  HIGH: "Alta",
+  URGENT: "Urgente",
+};
+
+const categoryLabels: Record<string, string> = {
+  ACCESS: "Acesso",
+  SYSTEM: "Sistema",
+  HARDWARE: "Hardware",
+  NETWORK: "Rede",
+  REQUEST: "Solicitação",
+  BUG: "Erro/Bug",
+};
+
+function formatValue(labels: Record<string, string>, value: string) {
+  return labels[value] ?? value;
+}
+
+export function TicketList({
+  tickets,
+  emptyMessage = "Nenhum chamado encontrado.",
+}: TicketListProps) {
   const shouldReduceMotion = useReducedMotion();
+
+  if (tickets.length === 0) {
+    return (
+      <div className="ticket-empty-state">
+        <strong>Fila vazia</strong>
+        <p>{emptyMessage}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="ticket-list">
@@ -30,14 +70,14 @@ export function TicketList({ tickets }: TicketListProps) {
           }
         >
           <div>
-            <span className="ticket-id">{ticket.id}</span>
+            <span className="ticket-id">{ticket.protocol ?? ticket.id}</span>
             <h4>{ticket.title}</h4>
-            <p>{ticket.category}</p>
+            <p>{formatValue(categoryLabels, ticket.category)}</p>
           </div>
 
           <div className="ticket-meta">
-            <span className="priority">{ticket.priority}</span>
-            <span className="status-pill">{ticket.status}</span>
+            <span className="priority">{formatValue(priorityLabels, ticket.priority)}</span>
+            <span className="status-pill">{formatValue(statusLabels, ticket.status)}</span>
           </div>
         </motion.article>
       ))}
