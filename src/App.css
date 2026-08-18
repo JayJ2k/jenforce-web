@@ -5981,7 +5981,7 @@ button {
   .nexus-entry-app .hero-headline-fixed .hero-title-line.is-outline {
     font-size: clamp(2.8rem, 12vw, 4rem);
   }
-}/* Hero title final scale polish */
+} /* Hero title final scale polish */
 
 .nexus-entry-app .hero-headline-fixed {
   gap: 0.26rem;
@@ -6012,7 +6012,7 @@ button {
   .nexus-headline {
     max-width: 54rem;
   }
-}/* Final landing polish pass */
+} /* Final landing polish pass */
 
 /* 1. Menu central um pouco menos dominante */
 @media (min-width: 961px) {
